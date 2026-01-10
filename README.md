@@ -8,7 +8,7 @@ Ett program för att importera Z-Rapporter (dagsrapport/dagskassa) från
 * Kontrollerar redan bokförda Z-Rapporter vilket också upptäcker när SIE-filer
   från ES Kassa redan importeras i Bokio.
 * Laddar upp Z-Rapporten i PDF-format som underlag till verifikatet.
-* Underlag (PDF och JSON) sparas som filer lokalt.
+* Underlag (PDF, SIE4 och JSON) sparas som filer lokalt.
 * Meny för att välja vad som ska importeras.
 
 ## Användning
@@ -19,7 +19,7 @@ Ska man sedan köra det regelbundet kan man enklast använda miljövariabler fö
 behöva ange all information varje gång.
 
 ```text
-ecbokio [OPTIONS]
+esbokio [OPTIONS]
 
 Options:
   --dinkassa-username NAME     Användarnamn för dinkassa.se. (DINKASSA_USERNAME)
@@ -45,7 +45,7 @@ Istället för absoluta datum tillåts även:
 
 ### ES Kassa / dinkassa.se
 
-Använd din inloggning på https://www.dinkassa.se/v2
+Använd din inloggning för https://www.dinkassa.se/v2
 
 ### Bokio
 
