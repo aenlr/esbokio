@@ -131,12 +131,14 @@ fn lista_rapporter(importer: &Vec<RapportImport>) {
         builder.push_record(values);
     }
 
-    let grand_total: Decimal = account_totals.iter().sum();
-    builder.push_record(
-        once("TOTAL".to_string())
-            .chain(repeat_n("".to_string(), fixed_columns.len() - 1))
-            .chain(account_totals.iter().map(|n| money(*n)))
-            .chain(once(money(grand_total))));
+    if importer.len() > 1 {
+        let grand_total: Decimal = account_totals.iter().sum();
+        builder.push_record(
+            once("TOTAL".to_string())
+                .chain(repeat_n("".to_string(), fixed_columns.len() - 1))
+                .chain(account_totals.iter().map(|n| money(*n)))
+                .chain(once(money(grand_total))));
+    }
 
     let mut table = builder.build();
     table.with((Alignment::right(), Padding::new(2, 2, 0, 0)));
