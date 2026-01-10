@@ -1,0 +1,8 @@
+/target
+/*.json
+/*.pdf
+/*.si
+*.local*
+
+.idea/
+*.iml
