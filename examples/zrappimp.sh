@@ -11,6 +11,7 @@ export DINKASSA_PASSWORD=''
 #export DINKASSA_MACHINE_KEY=''
 export BOKIO_API_TOKEN=''
 export BOKIO_COMPANY_ID=''
+export RUST_BACKTRACE=1
 
 esbokio=esbokio
 for d in "$SCRIPT_DIR" "$SCRIPT_DIR/../target/debug" "$SCRIPT_DIR/../target/release"; do

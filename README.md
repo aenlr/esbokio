@@ -32,6 +32,8 @@ Options:
   --start YYYY-MM-DD           Startdatum för Z-Rapporter (standard är dagens datum)
   --end YYYY-MM-DD             Slutdatum för Z-Rapporter (standard är samma som startdatum)
   --date YYYY-MM-DD            Bearbeta Z-Rapporter för ett specifikt datum (standard är dagens datum)
+
+  --save-files                 Spara filer efter import
   
 Istället för absoluta datum tillåts även:
 - today eller 0 = dagens datum

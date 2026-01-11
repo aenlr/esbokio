@@ -24,6 +24,7 @@ struct Cli {
     bokio_company_id: String,
     start_date: Option<NaiveDate>,
     end_date: Option<NaiveDate>,
+    save_files: bool,
 }
 
 fn check_arg(name: &str, arg: &str, iter: &mut impl Iterator<Item = String>) -> Option<String> {
@@ -151,22 +152,14 @@ fn valj_rapporter(rapporter: &Vec<RapportImport>) -> Vec<u32> {
         .iter()
         .filter(|e| e.verifikat.is_none())
         .map(|e| e.report.number)
-        .collect::<Vec<_>>();
+        .collect();
 
     if mojliga.is_empty() {
         return Vec::new();
     }
 
     loop {
-        if mojliga.len() == 1 {
-            print!(
-                "Importera rapport {} ([J]a*, [N]ej)? ",
-                mojliga.first().unwrap()
-            );
-        } else {
-            print!("Importera ([J]a = alla*, [N]ej = ingen eller nummer)? ");
-        }
-
+        print!("Importera ([J]a = alla*, [N]ej = ingen eller nummer)? ");
         std::io::stdout().flush().unwrap();
 
         let mut input = String::new();
@@ -238,6 +231,7 @@ fn importera_rapport(
     kassa: &DinKassa,
     bokio: &Bokio,
     import: &RapportImport,
+    save_files: bool,
 ) -> Result<JournalEntry, String> {
     println!(
         "Importerar Z-Rapport {}...",
@@ -304,11 +298,22 @@ fn importera_rapport(
         .inspect(|_| println!("OK"))
         .ok();
 
+    if !save_files {
+        for f in [&pdf_filename, &json_filename, &sie4_filename, &bokio_json_filename] {
+            std::fs::remove_file(f)
+                .inspect_err(|e| eprintln!("Misslyckades att radera: {}", e))
+                .ok();
+        }
+    }
+
     println!();
     Ok(journal_entry)
 }
 
-fn importera(kassa: &DinKassa, bokio: &Bokio, rapporter: &mut Vec<RapportImport>) {
+fn importera(kassa: &DinKassa,
+             bokio: &Bokio, rapporter: &mut Vec<RapportImport>,
+             save_files: bool,
+) {
     loop {
         lista_rapporter(&rapporter);
         let valda = valj_rapporter(&rapporter);
@@ -322,7 +327,7 @@ fn importera(kassa: &DinKassa, bokio: &Bokio, rapporter: &mut Vec<RapportImport>
                 .find(|e| e.report.number == seqnr)
                 .unwrap();
             println!();
-            match importera_rapport(&kassa, &bokio, imp) {
+            match importera_rapport(&kassa, &bokio, imp, save_files) {
                 Ok(journal_entry) => {
                     imp.verifikat.replace(journal_entry);
                 }
@@ -344,6 +349,7 @@ fn main() {
         bokio_api_url: utils::get_env_or_default("BOKIO_API_URL", BOKIO_API_URL),
         bokio_api_token: utils::get_env("BOKIO_API_TOKEN"),
         bokio_company_id: utils::get_env("BOKIO_COMPANY_ID"),
+        save_files: false,
     };
 
     let mut iter = std::env::args().skip(1);
@@ -365,6 +371,8 @@ fn main() {
             args.bokio_api_token = token;
         } else if let Some(company_id) = check_arg("bokio-company-id", &arg, &mut iter) {
             args.bokio_company_id = company_id;
+        } else if arg == "--save" || arg == "--save-files" {
+            args.save_files = true;
         } else {
             eprintln!("{}: invalid option", arg);
             std::process::exit(1);
@@ -437,7 +445,7 @@ fn main() {
 
     if !rapporter.is_empty() {
         let antal_skippade = rakna_importerade_rapporter(&rapporter);
-        importera(&kassa, &bokio, &mut rapporter);
+        importera(&kassa, &bokio, &mut rapporter, args.save_files);
         let antal_importerade = rakna_importerade_rapporter(&rapporter) - antal_skippade;
 
         println!();
