@@ -268,17 +268,23 @@ fn importera_rapport(
     std::fs::write(&sie4_filename, sie4).expect("Kunde inte spara SIE4.");
 
     let json = serde_json::to_vec_pretty(&import.sie).unwrap();
-    print!("* Sparar {}...", json_filename);
-    std::io::stdout().flush().ok();
+    if save_files {
+        print!("* Sparar {}...", json_filename);
+        std::io::stdout().flush().ok();
+    }
     std::fs::write(&json_filename, json).expect("Kunde inte spara JSON.");
 
     let journal_entry = create_journal_entry(&import.sie);
     let bokio_json_filename = format!("{}.bokio.json", basename);
-    print!(" {}", bokio_json_filename);
-    std::io::stdout().flush().ok();
+    if save_files {
+        print!(" {}", bokio_json_filename);
+        std::io::stdout().flush().ok();
+    }
     let json = serde_json::to_vec_pretty(&journal_entry).unwrap();
     std::fs::write(&bokio_json_filename, json).expect("Kunde inte spara JSON.");
-    println!();
+    if save_files {
+        println!();
+    }
 
     print!("* Bokför Z-Rapport {}... ", import.report.number);
     std::io::stdout().flush().ok();
@@ -299,8 +305,9 @@ fn importera_rapport(
         .ok();
 
     if !save_files {
-        for f in [&pdf_filename, &json_filename, &sie4_filename, &bokio_json_filename] {
-            std::fs::remove_file(f)
+        let files = [&pdf_filename, &json_filename, &sie4_filename, &bokio_json_filename];
+        for f in files {
+            std::fs::exists(f).and_then(|_| std::fs::remove_file(f))
                 .inspect_err(|e| eprintln!("Misslyckades att radera: {}", e))
                 .ok();
         }

@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use ureq::Error;
 
-pub const BOKIO_API_URL: &str = "https://api.bokio.se";
+pub const BOKIO_API_URL: &str = "https://api.bokio.se/v1";
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 pub struct JournalEntryAccount {
